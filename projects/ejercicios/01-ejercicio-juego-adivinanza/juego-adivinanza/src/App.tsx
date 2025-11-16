@@ -1,5 +1,5 @@
-import './App.css';
-import { useState } from 'react';
+import { useState } from 'react'
+import './App.css'
 
 function Header() {
   return (
@@ -8,8 +8,12 @@ function Header() {
     </header>
   );
 }
+interface JuegoProps {
+  maximo: number;
+}
 
-function Juego({ maximo }) {
+
+function Juego({ maximo }: JuegoProps) {
   // TODO: Crear estados con useState para:
   // - numeroJugador (el número que ingresa el jugador)
   // - numeroMaquina (el número aleatorio generado)
@@ -25,22 +29,30 @@ function Juego({ maximo }) {
   // - Siempre generar un nuevo número aleatorio con Math.floor(Math.random() * maximo) + 1
 
   const [numeroJugador, setNumeroJugador] = useState('');
-  const [numeroMaquina] = useState(() => Math.floor(Math.random() * maximo) + 1);
+  const [numeroMaquina, setNumeroMaquina] = useState(() => Math.floor(Math.random() * maximo) + 1);
   const [resultado, setResultado] = useState('');
+  const [esCorrecto, setEsCorrecto] = useState<boolean | null>(null);
   const [mostrarReintento, setMostrarReintento] = useState(false);
 
   const ResultadoAdivinanza = () => {
+    const nuevoNumero = Math.floor(Math.random() * maximo) + 1;
+    setNumeroMaquina(nuevoNumero);
+
     const intento = parseInt(numeroJugador, 10);
-    if (intento === numeroMaquina) {
+    console.log(`Número de la máquina: ${nuevoNumero}, Número del jugador: ${intento}`);
+    if (intento === nuevoNumero) {
       setResultado('¡Correcto! Adivinaste el número ');
+      setEsCorrecto(true);
     } else {
       setResultado('Como dijo José Luis Félix Chilavert... Tú no has ganado nada!.');
+      setEsCorrecto(false);
     }
     setMostrarReintento(true);
   };
   const reiniciarJuego = () => {
     setNumeroJugador('');
     setResultado('');
+    setEsCorrecto(null);
     setMostrarReintento(false);
   };
 
@@ -56,29 +68,36 @@ function Juego({ maximo }) {
           max={maximo}
           placeholder="Ingresa un número del 1 al 10"
           value={numeroJugador}
-          onChange={(e) => setNumeroJugador(Number(e.target.value))}
+          onChange={(e) => setNumeroJugador(e.target.value)}
         />
         <button type="button" onClick={ResultadoAdivinanza} >Probar mi suerte</button>
       </form>
-       {resultado && (
-        <div className={`resultado ${resultado.includes('Correcto') ? 'acierto' : 'error'}`}>
+      {esCorrecto === true && (
+        <div className="resultado">
+          <strong className="mensaje-acierto">{resultado}</strong>
         </div>
       )}
-       {resultado && !resultado.includes('Correcto') && (
-        <img
-          src="/chila.jpg"
-          alt="Fallaste"
-          style={{ width: '200px', marginTop: '10px' }}
-        />
+
+      {esCorrecto === false && (
+        <div className="resultado-error">
+          <div className="mensaje-error">
+            <strong>{resultado}</strong>
+          </div>
+          <div className="imagen-error">
+            <img src="/chila.jpg" alt="Fallaste" />
+          </div>
+        </div>
       )}
 
-      {/* TODO: Mostrar el resultado con una clase dinámica si adivinó */}
-      <div className="resultado" >
-        <strong>{resultado}</strong>
-      </div>
       {mostrarReintento && (
-        <button type="button" onClick={reiniciarJuego}>Volver a intentarlo</button>)}
+        <div style={{ marginTop: '10px' }}>
+          <button type="button" onClick={reiniciarJuego}>
+            Volver a intentarlo
+          </button>
+        </div>
+      )}
     </div>
+
   );
 }
 
@@ -94,4 +113,3 @@ function App() {
 }
 
 export default App;
-
